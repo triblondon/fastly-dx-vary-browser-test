@@ -130,7 +130,6 @@
 			testRow.querySelector('.seqnum').innerHTML = testNum++;
 			return out.then(() => {
 				const url = new URL(location.protocol + '//' + location.host + testRow.querySelector('.url').innerText);
-				console.log(testRow.querySelector('.url').innerText);
 				const headers = testRow
 					.querySelector('.headers')
 					.innerText
@@ -141,8 +140,9 @@
 						return heads;
 					}, {})
 				;
-				console.log(headers);
-				performance.clearResourceTimings();
+				if ('clearResourceTimings' in performance) {
+					performance.clearResourceTimings();
+				}
 				return fetch(url, {headers: headers, credentials: "same-origin"})
 					.then(resp => {
 						return resp.text();
@@ -158,7 +158,8 @@
 					})
 				;
 			});
-		}, Promise.resolve());
+		}, Promise.resolve())
+		.catch(e => console.log(e));
 	</script>
 	</body>
 </html>
