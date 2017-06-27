@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Fastly Vary in browser test</title>
+	<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
+	<link rel="stylesheet" href="/css/ux-platform.css">
+	<style>
+		body {
+			margin: 20px;
+		}
+		h1 {
+			margin-bottom: 20px;
+		}
+
+	</style>
+</head>
+<body class='online'>
+	<div class="layout">
+
+	<h1>Vary granularity test</h1>
+
+	<p>This test is designed to show that browsers do not store multiple copies of objects that have a <code>Vary</code> header on the response, one for each variation, as intermediate caches do.  When you serve a response through Fastly, we store each variation of the same URL as a separate cache entry, because different end users may want different variations (eg for language variants). However, a single user rarely changes their
+
+	<table class='fui-table'>
+		<thead>
+			<tr><th>#</th><th>Request URL</th><th>Headers</th><th>Transfer size (b)</th><th>Req time (ms)</th><th>Received content</th></tr>
+		</thead>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/format</td>
+			<td class='headers'>Accept: application/json</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/format</td>
+			<td class='headers'>Accept: application/json</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/format</td>
+			<td class='headers'>Accept: text/csv</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/format</td>
+			<td class='headers'>Accept: application/json</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/lang</td>
+			<td class='headers'>Accept-Language: en</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/lang</td>
+			<td class='headers'>Accept-Language: en</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/lang</td>
+			<td class='headers'>Accept-Language: jp</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/lang</td>
+			<td class='headers'>Accept-Language: en</td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/util/set-cookie?name=cacheVer&amp;val=1</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/cookie</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/cookie</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/cookie2</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/cookie2</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/util/set-cookie?name=cacheVer&amp;val=2</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/cookie</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/cookie2</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+	</table>
+	</div>
+	<script>
+		let testNum = 0;
+		const testRun = Array.from(document.querySelectorAll('.test')).reduce((out, testRow) => {
+			testRow.querySelector('.seqnum').innerHTML = testNum++;
+			return out.then(() => {
+				const url = new URL(location.protocol + '//' + location.host + testRow.querySelector('.url').innerText);
+				console.log(testRow.querySelector('.url').innerText);
+				const headers = testRow
+					.querySelector('.headers')
+					.innerText
+					.split(/\s*;\s*/)
+					.reduce((heads, item) => {
+						const [k,v] = item.split(/:\s*/, 2);
+						if (k) heads[k] = v;
+						return heads;
+					}, {})
+				;
+				console.log(headers);
+				performance.clearResourceTimings();
+				return fetch(url, {headers: headers, credentials: "same-origin"})
+					.then(resp => {
+						return resp.text();
+					})
+					.then(data => {
+						const perfentries = performance.getEntriesByName(url).filter(e => e instanceof PerformanceResourceTiming);
+						if (perfentries.length) {
+							const perf = perfentries.pop();
+							testRow.querySelector('.result-reqTime').innerHTML = Math.round(perf.responseStart - perf.requestStart);
+							testRow.querySelector('.result-transferSize').innerHTML = perf.transferSize;
+						}
+						testRow.querySelector('.result-content').innerHTML = data;
+					})
+				;
+			});
+		}, Promise.resolve());
+	</script>
+	</body>
+</html>

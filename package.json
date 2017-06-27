@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "author": "triblondon",
+  "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "dotenv": "^4.0.0",
+    "express": "^4.15.3",
+    "express-csv": "^0.6.0"
+  },
+  "engines": {
+    "node": "7.9.0"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "start-dev": "nodemon server/server.js --ignore __build --ext js,json,css,hbs,png,svg",
+    "deploy": "git push heroku master"
+  },
+  "license": "MIT",
+  "devDependencies": {}
+}
