@@ -137,6 +137,13 @@
 			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
 		</tr>
 	</table>
+
+	<h2>Conclusions</h2>
+
+	<ul>
+		<li>In terms of ability to instrument and understand what is going on, Chrome (58) and Firefox (54) both have support for the full ResourceTiming API, including reporting of <code>transferSize</code> which allows for easy and reliable understanding of whether a request hit cache.  Edge (15) does not support <code>transferSize</code> but we can make a reasonable approximation by using the timing metrics.  Safari (10) has no support for ResourceTiming at all, so we have to measure request timings manually.</li>
+	</ul>
+
 	</div>
 	<script>
 		let testNum = 0;
@@ -157,16 +164,23 @@
 				if ('clearResourceTimings' in performance) {
 					performance.clearResourceTimings();
 				}
+				const startTime = performance.now();
 				return fetch(url, {headers: headers, credentials: "same-origin"})
 					.then(resp => {
 						return resp.text();
 					})
 					.then(data => {
-						const perfentries = performance.getEntriesByName(url).filter(e => e instanceof PerformanceResourceTiming);
-						if (perfentries.length) {
-							const perf = perfentries.pop();
-							testRow.querySelector('.result-reqTime').innerHTML = Math.round(perf.responseStart - perf.requestStart);
-							testRow.querySelector('.result-transferSize').innerHTML = perf.transferSize;
+						if ('getEntriesByName' in performance) {
+							const perfentries = performance.getEntriesByName(url).filter(e => e instanceof PerformanceResourceTiming);
+							if (perfentries.length) {
+								const perf = perfentries.pop();
+								testRow.querySelector('.result-reqTime').innerHTML = Math.round(perf.responseStart - perf.requestStart);
+								testRow.querySelector('.result-transferSize').innerHTML = ('transferSize' in perf) ? perf.transferSize : 'unsupported';
+							}
+						} else {
+							const endTime = performance.now();
+							testRow.querySelector('.result-reqTime').innerHTML = Math.round(endTime - startTime);
+							testRow.querySelector('.result-transferSize').innerHTML = 'unsupported';
 						}
 						testRow.querySelector('.result-content').innerHTML = data;
 					})

@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 
 
 const PORT = process.env.PORT || 3102;
+const DELAY_TIME = 1000;
 
 const app = express();
 
@@ -18,46 +19,56 @@ app.use(cookieParser());
 app.use(express.static('public'));
 
 app.get('/test/format', (req, res) => {
-	const data = [[1,2,3],[4,5,6]];
-	res.set('Vary', 'Accept');
-	res.set('Cache-control', 'max-age=3600');
-	res.set('Timing-Allow-Origin', '*');
-	if (req.headers.accept === 'text/csv') {
-		res.set('Content-type', 'text/csv');
-		res.csv(data);
-	} else {
-		res.set('Content-type', 'application/json');
-		res.json(data);
-	}
+	setTimeout(() => {
+		const data = [[1,2,3],[4,5,6]];
+		res.set('Vary', 'Accept');
+		res.set('Cache-control', 'max-age=3600');
+		res.set('Timing-Allow-Origin', '*');
+		if (req.headers.accept === 'text/csv') {
+			res.set('Content-type', 'text/csv');
+			res.csv(data);
+		} else {
+			res.set('Content-type', 'application/json');
+			res.json(data);
+		}
+	}, DELAY_TIME);
 });
 
 app.get('/test/lang', (req, res) => {
-	const content = {'en':'Hello world', 'jp':'こんにちは世界'};
-	res.set('Vary', 'Accept-Language');
-	res.set('Cache-control', 'max-age=3600');
-	res.set('Timing-Allow-Origin', '*');
-	res.end(content[req.headers['accept-language']]);
+	setTimeout(() => {
+		const content = {'en':'Hello world', 'jp':'こんにちは世界'};
+		res.set('Vary', 'Accept-Language');
+		res.set('Cache-control', 'max-age=3600');
+		res.set('Timing-Allow-Origin', '*');
+		res.end(content[req.headers['accept-language']]);
+	}, DELAY_TIME);
 });
 
 app.get(/\/test\/cookie2?/, (req, res) => {
-	res.set('Vary', 'Cookie');
-	res.set('Cache-control', 'max-age=3600');
-	res.set('Timing-Allow-Origin', '*');
-	res.json(req.cookies);
+	setTimeout(() => {
+		res.set('Vary', 'Cookie');
+		res.set('Cache-control', 'max-age=3600');
+		res.set('Timing-Allow-Origin', '*');
+		res.json(req.cookies);
+	}, DELAY_TIME);
 });
 
 app.get("/test/preloadWithVary", (req, res) => {
-	res.set('Vary', 'Accept-Encoding, Accept');
-	res.set('Cache-control', 'max-age=3600');
-	res.set('Content-type', 'text/css');
-	res.set('Timing-Allow-Origin', '*');
-	res.end('.foo { color: blue; }');
+	setTimeout(() => {
+		res.set('Vary', 'Accept-Encoding, Accept');
+		res.set('Cache-control', 'max-age=3600');
+		res.set('Content-type', 'text/css');
+		res.set('Timing-Allow-Origin', '*');
+		res.end('.foo { color: blue; }');
+	}, DELAY_TIME);
 });
 app.get("/test/preload", (req, res) => {
-	res.set('Cache-control', 'max-age=3600');
-	res.set('Content-type', 'text/css');
-	res.set('Timing-Allow-Origin', '*');
-	res.end('.foo { color: red; }');
+	setTimeout(() => {
+		res.set('Cache-control', 'max-age=3600');
+		res.set('Content-type', 'text/css');
+		res.set('Timing-Allow-Origin', '*');
+		res.end('.foo { color: red; }');
+	}, DELAY_TIME);
 });
 
 app.get("/util/set-cookie", (req, res) => {
