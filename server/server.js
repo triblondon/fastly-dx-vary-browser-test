@@ -62,6 +62,24 @@ app.get("/test/preloadWithVaryAcceptEncoding", (req, res) => {
 		res.end('.foo { color: blue; }');
 	}, DELAY_TIME);
 });
+app.get("/test/preloadWithVaryAccept", (req, res) => {
+	setTimeout(() => {
+		res.set('Vary', 'Accept');
+		res.set('Cache-control', 'max-age=120');
+		res.set('Content-type', 'text/css');
+		res.set('Timing-Allow-Origin', '*');
+		res.end('.foo { color: blue; }');
+	}, DELAY_TIME);
+});
+app.get("/test/preloadWithVaryCustom", (req, res) => {
+	setTimeout(() => {
+		res.set('Vary', 'Foo-Header');
+		res.set('Cache-control', 'max-age=120');
+		res.set('Content-type', 'text/css');
+		res.set('Timing-Allow-Origin', '*');
+		res.end('.foo { color: blue; }');
+	}, DELAY_TIME);
+});
 app.get("/test/preloadWithVaryMultiple", (req, res) => {
 	setTimeout(() => {
 		res.set('Vary', 'Accept-Encoding, Accept');

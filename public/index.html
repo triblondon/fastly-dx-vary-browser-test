@@ -6,6 +6,8 @@
 	<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
 	<link rel="preload" href="/test/preload" as="style">
 	<link rel="preload" href="/test/preloadWithVaryAcceptEncoding" as="style">
+	<link rel="preload" href="/test/preloadWithVaryAccept" as="style">
+	<link rel="preload" href="/test/preloadWithVaryCustom" as="style">
 	<link rel="preload" href="/test/preloadWithVaryMultiple" as="style">
 	<link rel="stylesheet" href="/css/ux-platform.css">
 	<style>
@@ -181,11 +183,27 @@
 		</tr>
 		<tr class='test'>
 			<td class='seqnum'></td>
+			<td class='url'>/test/preloadWithVaryAccept</td>
+			<td class='headers'></td>
+			<td class='expect'>HIT</td>
+			<td class='actual'></td>
+			<td class='note'>As above but varying on <code>Accept</code> rather than <code>Accept-Encoding</code>.</td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/preloadWithVaryCustom</td>
+			<td class='headers'></td>
+			<td class='expect'>HIT</td>
+			<td class='actual'></td>
+			<td class='note'>As above but varying on <code>Foo-Header</code> rather than <code>Accept-Encoding</code>.  <code>Foo-Header</code> is not sent in the preload request nor in the test request so it should hit the cache.</td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
 			<td class='url'>/test/preloadWithVaryMultiple</td>
 			<td class='headers'></td>
 			<td class='expect'>HIT</td>
 			<td class='actual'></td>
-			<td class='note'>Now the preloaded object has a Vary header with multiple request headers listed.  Again this should be a cache hit because the object was preloaded.</td>
+			<td class='note'>Now the preloaded object has a Vary header with multiple request headers listed.  Again this should be a cache hit because the object was preloaded with the same values in the varied headers.</td>
 		</tr>
 	</table>
 
