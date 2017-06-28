@@ -15,7 +15,13 @@
 		h1 {
 			margin-bottom: 20px;
 		}
-
+		tr.fail {
+			background: #fff1b9;
+		}
+		tr.fail .expect,
+		tr.fail .actual {
+			font-weight: bold;
+		}
 	</style>
 </head>
 <body class='online'>
@@ -239,6 +245,9 @@
 							}
 						}
 						testRow.querySelector('.actual').innerHTML = result;
+						if (result !== testRow.querySelector('.expect').innerText) {
+							testRow.classList.add('fail');
+						}
 					})
 				;
 			});
