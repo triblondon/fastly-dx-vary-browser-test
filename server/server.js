@@ -22,7 +22,7 @@ app.get('/test/format', (req, res) => {
 	setTimeout(() => {
 		const data = [[1,2,3],[4,5,6]];
 		res.set('Vary', 'Accept');
-		res.set('Cache-control', 'max-age=3600');
+		res.set('Cache-control', 'max-age=120');
 		res.set('Timing-Allow-Origin', '*');
 		if (req.headers.accept === 'text/csv') {
 			res.set('Content-type', 'text/csv');
@@ -38,7 +38,7 @@ app.get('/test/lang', (req, res) => {
 	setTimeout(() => {
 		const content = {'en':'Hello world', 'jp':'こんにちは世界'};
 		res.set('Vary', 'Accept-Language');
-		res.set('Cache-control', 'max-age=3600');
+		res.set('Cache-control', 'max-age=120');
 		res.set('Timing-Allow-Origin', '*');
 		res.end(content[req.headers['accept-language']]);
 	}, DELAY_TIME);
@@ -47,7 +47,7 @@ app.get('/test/lang', (req, res) => {
 app.get(/\/test\/cookie2?/, (req, res) => {
 	setTimeout(() => {
 		res.set('Vary', 'Cookie');
-		res.set('Cache-control', 'max-age=3600');
+		res.set('Cache-control', 'max-age=120');
 		res.set('Timing-Allow-Origin', '*');
 		res.json(req.cookies);
 	}, DELAY_TIME);
@@ -56,7 +56,7 @@ app.get(/\/test\/cookie2?/, (req, res) => {
 app.get("/test/preloadWithVaryAcceptEncoding", (req, res) => {
 	setTimeout(() => {
 		res.set('Vary', 'Accept-Encoding');
-		res.set('Cache-control', 'max-age=3600');
+		res.set('Cache-control', 'max-age=120');
 		res.set('Content-type', 'text/css');
 		res.set('Timing-Allow-Origin', '*');
 		res.end('.foo { color: blue; }');
@@ -65,7 +65,7 @@ app.get("/test/preloadWithVaryAcceptEncoding", (req, res) => {
 app.get("/test/preloadWithVaryMultiple", (req, res) => {
 	setTimeout(() => {
 		res.set('Vary', 'Accept-Encoding, Accept');
-		res.set('Cache-control', 'max-age=3600');
+		res.set('Cache-control', 'max-age=120');
 		res.set('Content-type', 'text/css');
 		res.set('Timing-Allow-Origin', '*');
 		res.end('.foo { color: blue; }');
@@ -73,7 +73,7 @@ app.get("/test/preloadWithVaryMultiple", (req, res) => {
 });
 app.get("/test/preload", (req, res) => {
 	setTimeout(() => {
-		res.set('Cache-control', 'max-age=3600');
+		res.set('Cache-control', 'max-age=120');
 		res.set('Content-type', 'text/css');
 		res.set('Timing-Allow-Origin', '*');
 		res.end('.foo { color: red; }');
