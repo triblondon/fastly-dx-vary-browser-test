@@ -53,7 +53,16 @@ app.get(/\/test\/cookie2?/, (req, res) => {
 	}, DELAY_TIME);
 });
 
-app.get("/test/preloadWithVary", (req, res) => {
+app.get("/test/preloadWithVaryAcceptEncoding", (req, res) => {
+	setTimeout(() => {
+		res.set('Vary', 'Accept-Encoding');
+		res.set('Cache-control', 'max-age=3600');
+		res.set('Content-type', 'text/css');
+		res.set('Timing-Allow-Origin', '*');
+		res.end('.foo { color: blue; }');
+	}, DELAY_TIME);
+});
+app.get("/test/preloadWithVaryMultiple", (req, res) => {
 	setTimeout(() => {
 		res.set('Vary', 'Accept-Encoding, Accept');
 		res.set('Cache-control', 'max-age=3600');
