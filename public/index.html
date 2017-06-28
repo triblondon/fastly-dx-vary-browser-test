@@ -65,9 +65,9 @@
 			<td class='seqnum'></td>
 			<td class='url'>/test/format</td>
 			<td class='headers'>Accept: application/json</td>
-			<td class='expect'>HIT</td>
+			<td class='expect'>MISS</td>
 			<td class='actual'></td>
-			<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the text/csv variant will potentially have overwritten the application/json version, in which case this will be a cache miss.</td>
+			<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the text/csv variant will have overwritten the application/json version, and this will be a cache miss.</td>
 		</tr>
 		<tr class='test'>
 			<td class='seqnum'></td>
@@ -97,9 +97,9 @@
 			<td class='seqnum'></td>
 			<td class='url'>/test/lang</td>
 			<td class='headers'>Accept-Language: en</td>
-			<td class='expect'>HIT</td>
+			<td class='expect'>MISS</td>
 			<td class='actual'></td>
-			<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the text/csv variant will potentially have overwritten the application/json version, in which case this will be a cache miss.</td>
+			<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the ja variant will have overwritten the application/json version, and this will be a cache miss.</td>
 		</tr>
 		<tr class='test'>
 			<td class='seqnum'></td>
@@ -179,15 +179,15 @@
 			<td class='headers'></td>
 			<td class='expect'>HIT</td>
 			<td class='actual'></td>
-			<td class='note'>As above, but this time the preloaded object had a Vary header on the response.  Some browsers will ignore preload responses that have vary, so the request might be made even though the same resource was loaded earlier.</td>
+			<td class='note'>As above, but this time the preloaded object had a Vary header on the response.  Since the preload request will have the same <code>Accept-Encoding</code> value as the test request, this should be a HIT.</td>
 		</tr>
 		<tr class='test'>
 			<td class='seqnum'></td>
 			<td class='url'>/test/preloadWithVaryAccept</td>
 			<td class='headers'></td>
-			<td class='expect'>HIT</td>
+			<td class='expect'>MISS</td>
 			<td class='actual'></td>
-			<td class='note'>As above but varying on <code>Accept</code> rather than <code>Accept-Encoding</code>.</td>
+			<td class='note'>As above but varying on <code>Accept</code> rather than <code>Accept-Encoding</code>.  Preload links have an <code>as</code> attribute, which specifies what type of thing you are preloading, and for the purposes of this demo we are preloading <code>as=style</code>.  For the test request, we use a normal fetch, which likely means a different <code>Accept</code> header, and a MISS.</td>
 		</tr>
 		<tr class='test'>
 			<td class='seqnum'></td>
@@ -195,15 +195,15 @@
 			<td class='headers'></td>
 			<td class='expect'>HIT</td>
 			<td class='actual'></td>
-			<td class='note'>As above but varying on <code>Foo-Header</code> rather than <code>Accept-Encoding</code>.  <code>Foo-Header</code> is not sent in the preload request nor in the test request so it should hit the cache.</td>
+			<td class='note'>As above but varying on <code>Foo-Header</code>.  <code>Foo-Header</code> is not sent in the preload request nor in the test request so it should hit the cache.</td>
 		</tr>
 		<tr class='test'>
 			<td class='seqnum'></td>
 			<td class='url'>/test/preloadWithVaryMultiple</td>
 			<td class='headers'></td>
-			<td class='expect'>HIT</td>
+			<td class='expect'>MISS</td>
 			<td class='actual'></td>
-			<td class='note'>Now the preloaded object has a Vary header with multiple request headers listed.  Again this should be a cache hit because the object was preloaded with the same values in the varied headers.</td>
+			<td class='note'>Now the preloaded object has a Vary header with multiple request headers listed.  Because this list includes <code>Accept</code>, which we have established will differ between the preload request and the test request, this will be a miss.</td>
 		</tr>
 	</table>
 
