@@ -242,6 +242,9 @@
 					.then(data => {
 						const endTime = performance.now();
 						let result = null;
+
+						// For browsers that support resource timing, use that to figure out whether the
+						// response was a cache hit
 						if ('getEntriesByName' in performance) {
 							const perfentries = performance.getEntriesByName(url).filter(e => e instanceof PerformanceResourceTiming);
 							if (perfentries.length) {
@@ -255,6 +258,9 @@
 								}
 							}
 						}
+
+						// If the browser doesn't support resource timing or didn't generate a PerformanceResourceTiming
+						// entry for some reason, use manually measured request timing to guess whether it was a cache hit
 						if (!result) {
 							if (Math.round(endTime - startTime) < 250) {
 								result = 'HIT';
