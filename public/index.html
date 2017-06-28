@@ -4,6 +4,8 @@
 	<meta charset="utf-8">
 	<title>Fastly Vary in browser test</title>
 	<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
+	<link rel="preload" href="/test/preload" as="style">
+	<link rel="preload" href="/test/preloadWithVary" as="style">
 	<link rel="stylesheet" href="/css/ux-platform.css">
 	<style>
 		body {
@@ -119,6 +121,18 @@
 		<tr class='test'>
 			<td class='seqnum'></td>
 			<td class='url'>/test/cookie2</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/preload</td>
+			<td class='headers'></td>
+			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
+		</tr>
+		<tr class='test'>
+			<td class='seqnum'></td>
+			<td class='url'>/test/preloadWithVary</td>
 			<td class='headers'></td>
 			<td class='result-transferSize'></td><td class='result-reqTime'></td><td  class='result-content'></td>
 		</tr>

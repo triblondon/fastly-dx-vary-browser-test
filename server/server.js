@@ -46,6 +46,20 @@ app.get(/\/test\/cookie2?/, (req, res) => {
 	res.json(req.cookies);
 });
 
+app.get("/test/preloadWithVary", (req, res) => {
+	res.set('Vary', 'Accept-Encoding, Accept');
+	res.set('Cache-control', 'max-age=3600');
+	res.set('Content-type', 'text/css');
+	res.set('Timing-Allow-Origin', '*');
+	res.end('.foo { color: blue; }');
+});
+app.get("/test/preload", (req, res) => {
+	res.set('Cache-control', 'max-age=3600');
+	res.set('Content-type', 'text/css');
+	res.set('Timing-Allow-Origin', '*');
+	res.end('.foo { color: red; }');
+});
+
 app.get("/util/set-cookie", (req, res) => {
 	res.set('Cache-control', 'max-age=0; private');
 	res.cookie(req.query.name, req.query.val, { maxAge: 60000, httpOnly: true });
