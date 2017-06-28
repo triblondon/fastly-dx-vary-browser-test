@@ -223,14 +223,14 @@
 					})
 					.then(data => {
 						const endTime = performance.now();
-						let result;
+						let result = null;
 						if ('getEntriesByName' in performance) {
 							const perfentries = performance.getEntriesByName(url).filter(e => e instanceof PerformanceResourceTiming);
 							if (perfentries.length) {
 								const perf = perfentries.pop();
 								if ('transferSize' in perf && perf.transferSize === 0) {
 									result = 'HIT';
-								} else if (Math.round(perf.responseStart - perf.requestStart) < 500) {
+								} else if (Math.round(perf.responseStart - perf.requestStart) < 250) {
 									result = 'HIT';
 								} else {
 									result = 'MISS';
@@ -238,7 +238,7 @@
 							}
 						}
 						if (!result) {
-							if (Math.round(endTime - startTime) < 500) {
+							if (Math.round(endTime - startTime) < 250) {
 								result = 'HIT';
 							} else {
 								result = 'MISS';

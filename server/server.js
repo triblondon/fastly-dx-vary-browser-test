@@ -81,9 +81,11 @@ app.get("/test/preload", (req, res) => {
 });
 
 app.get("/util/set-cookie", (req, res) => {
-	res.set('Cache-control', 'max-age=0; private');
-	res.cookie(req.query.name, req.query.val, { maxAge: 60000, httpOnly: true });
-	res.end('OK');
+	setTimeout(() => {
+		res.set('Cache-control', 'max-age=0; private');
+		res.cookie(req.query.name, req.query.val, { maxAge: 60000, httpOnly: true });
+		res.end('OK');
+	}, DELAY_TIME);
 });
 
 
