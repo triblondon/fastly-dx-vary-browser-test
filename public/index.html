@@ -5,10 +5,12 @@
 	<title>Fastly Vary in browser test</title>
 	<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
 	<link rel="preload" href="/test/preload" as="style">
-	<link rel="preload" href="/test/preloadWithVaryAcceptEncoding" as="style">
-	<link rel="preload" href="/test/preloadWithVaryAccept" as="style">
-	<link rel="preload" href="/test/preloadWithVaryCustom" as="style">
-	<link rel="preload" href="/test/preloadWithVaryMultiple" as="style">
+	<link rel="preload" href="/test/preload?c=0" as="style">
+	<link rel="preload" href="/test/preload?v=Accept-Encoding" as="style">
+	<link rel="preload" href="/test/preload?v=Accept-Encoding&c=0" as="style">
+	<link rel="preload" href="/test/preload?v=Accept" as="style">
+	<link rel="preload" href="/test/preload?v=Foo-Header" as="style">
+	<link rel="preload" href="/test/preload?v=Accept%2C%20Accept-Encoding" as="style">
 	<link rel="stylesheet" href="/css/ux-platform.css">
 	<style>
 		body {
@@ -33,179 +35,402 @@
 
 	<p>This test is designed to show that browsers do not store multiple copies of objects that have a <code>Vary</code> header on the response, one for each variation, as intermediate caches do.  When you serve a response through Fastly, we store each variation of the same URL as a separate cache entry, because different end users may want different variations (eg for language variants). However, a single user rarely changes their
 
-	<table class='fui-table'>
-		<thead>
-			<tr><th>#</th><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
-		</thead>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/format</td>
-			<td class='headers'>Accept: application/json</td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>May already be cached if the test page has been loaded recently</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/format</td>
-			<td class='headers'>Accept: application/json</td>
-			<td class='expect'>HIT</td>
-			<td class='actual'></td>
-			<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/format</td>
-			<td class='headers'>Accept: text/csv</td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Changing the value of the varied header should cause cache miss, and a different response.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/format</td>
-			<td class='headers'>Accept: application/json</td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the text/csv variant will have overwritten the application/json version, and this will be a cache miss.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/lang</td>
-			<td class='headers'>Accept-Language: en</td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>May already be cached if the test page has been loaded recently</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/lang</td>
-			<td class='headers'>Accept-Language: en</td>
-			<td class='expect'>HIT</td>
-			<td class='actual'></td>
-			<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/lang</td>
-			<td class='headers'>Accept-Language: jp</td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Changing the value of the varied header should cause cache miss, and a different response.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/lang</td>
-			<td class='headers'>Accept-Language: en</td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the ja variant will have overwritten the application/json version, and this will be a cache miss.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/util/set-cookie?name=cacheVer&amp;val=1</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Sets a cookie to prepare for the next test</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/cookie</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>A new response that varies on cookie will miss simply because this is the first time we've loaded this endpoint.   It should cache with a vary key set to the cookie value that has just been set.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/cookie</td>
-			<td class='headers'></td>
-			<td class='expect'>HIT</td>
-			<td class='actual'></td>
-			<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/cookie2</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Different new endpoint also varying by cookie, should load from network, and cache against the same cookie value as the first cookie test.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/cookie2</td>
-			<td class='headers'></td>
-			<td class='expect'>HIT</td>
-			<td class='actual'></td>
-			<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/util/set-cookie?name=cacheVer&amp;val=2</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Change the cookie value to prepare for the next test</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/cookie</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Re-requesting a previously requested endpoint but the request should now have a different cookie value, and since the stored cache entry is varying on cookie, this request will skip cache.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/cookie2</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Same for another endpoint that varies by the same cookie.  Changing the one cookie value should affect all requests that vary on cookie.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/preload</td>
-			<td class='headers'></td>
-			<td class='expect'>HIT</td>
-			<td class='actual'></td>
-			<td class='note'>An object that has been preloaded in the page's meta tags, should be in cache by the time it is requested as part of the test.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/preloadWithVaryAcceptEncoding</td>
-			<td class='headers'></td>
-			<td class='expect'>HIT</td>
-			<td class='actual'></td>
-			<td class='note'>As above, but this time the preloaded object had a Vary header on the response.  Since the preload request will have the same <code>Accept-Encoding</code> value as the test request, this should be a HIT.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/preloadWithVaryAccept</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>As above but varying on <code>Accept</code> rather than <code>Accept-Encoding</code>.  Preload links have an <code>as</code> attribute, which specifies what type of thing you are preloading, and for the purposes of this demo we are preloading <code>as=style</code>.  For the test request, we use a normal fetch, which likely means a different <code>Accept</code> header, and a MISS.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/preloadWithVaryCustom</td>
-			<td class='headers'></td>
-			<td class='expect'>HIT</td>
-			<td class='actual'></td>
-			<td class='note'>As above but varying on <code>Foo-Header</code>.  <code>Foo-Header</code> is not sent in the preload request nor in the test request so it should hit the cache.</td>
-		</tr>
-		<tr class='test'>
-			<td class='seqnum'></td>
-			<td class='url'>/test/preloadWithVaryMultiple</td>
-			<td class='headers'></td>
-			<td class='expect'>MISS</td>
-			<td class='actual'></td>
-			<td class='note'>Now the preloaded object has a Vary header with multiple request headers listed.  Because this list includes <code>Accept</code>, which we have established will differ between the preload request and the test request, this will be a miss.</td>
-		</tr>
-	</table>
+	<section class='test-group'>
+		<h2>Accept</h2>
+
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/format?v=Accept</td>
+				<td class='headers'>Accept: application/json</td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Seed</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/format?v=Accept</td>
+				<td class='headers'>Accept: application/json</td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/format?v=Accept</td>
+				<td class='headers'>Accept: text/csv</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Changing the value of the varied header should cause cache miss, and a different response.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/format?v=Accept</td>
+				<td class='headers'>Accept: application/json</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the text/csv variant will have overwritten the application/json version, and this will be a cache miss.</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>Accept-Language</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/lang?v=Accept-Language</td>
+				<td class='headers'>Accept-Language: en</td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Seed</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/lang?v=Accept-Language</td>
+				<td class='headers'>Accept-Language: en</td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/lang?v=Accept-Language</td>
+				<td class='headers'>Accept-Language: jp</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Changing the value of the varied header should cause cache miss, and a different response.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/lang?v=Accept-Language</td>
+				<td class='headers'>Accept-Language: en</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Changing back to the original varied header value would ideally hit the object cached earlier, but commonly browsers will use vary as a validator, rather than as part of the cache key, so the ja variant will have overwritten the application/json version, and this will be a cache miss.</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>Cookie</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/util/set-cookie?name=cacheVer&amp;val=1</td>
+				<td class='headers'></td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Sets a cookie to prepare for the next test</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/cookie?v=Cookie</td>
+				<td class='headers'></td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Seed a new response that varies on cookie.   It should cache with a vary key set to the cookie value that has just been set.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/cookie?v=Cookie</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/cookie2?v=Cookie</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Different new endpoint also varying by cookie, should load from network, and cache against the same cookie value as the first cookie test.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/cookie2?v=Cookie</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>Reloading the same object with same value in the Varied header should hit cache</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/util/set-cookie?name=cacheVer&amp;val=2</td>
+				<td class='headers'></td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Change the cookie value to prepare for the next test</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/cookie?v=Cookie</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Re-requesting a previously requested endpoint but the request should now have a different cookie value, and since the stored cache entry is varying on cookie, this request will skip cache.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/cookie2?v=Cookie</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Same for another endpoint that varies by the same cookie.  Changing the one cookie value should affect all requests that vary on cookie.</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>Preload</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/preload</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>An object that has been preloaded in the page's meta tags, should be in cache by the time it is requested as part of the test.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/preload?c=0</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>... even if it cannot be cached in the HTTP cache (because it should be in the separate preload cache)</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/preload?v=Accept-Encoding</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>As above, but this time the preloaded object had a Vary header on the response.  Since the preload request will have the same <code>Accept-Encoding</code> value as the test request, this should be a HIT.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/preload?v=Accept-Encoding&amp;c=0</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>... even if it cannot be cached in the HTTP cache (because it should be in the separate preload cache)</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/preload?v=Accept</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>As above but varying on <code>Accept</code> rather than <code>Accept-Encoding</code>.  Preload links have an <code>as</code> attribute, which specifies what type of thing you are preloading, and for the purposes of this demo we are preloading <code>as=style</code>.  For the test request, we use a normal fetch, which likely means a different <code>Accept</code> header, and a MISS.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/preload?v=Foo-Header</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>As above but varying on <code>Foo-Header</code>.  <code>Foo-Header</code> is not sent in the preload request nor in the test request so it should hit the cache.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/preload?v=Accept%2C%20Accept-Encoding</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Now the preloaded object has a Vary header with multiple request headers listed.  Because this list includes <code>Accept</code>, which we have established will differ between the preload request and the test request, this will be a miss.</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>HTTP/2 Push</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/push</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>An asset sent in an HTTP/2 Server Push should hit the cache when requested later by the page</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/push?c=0</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>... even if it cannot be cached in the HTTP cache (because it should be in the separate preload cache)</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/push?v=Accept-Encoding&amp;c=0</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>If the server pushes an object that has a Vary header on the response, it should still be a hit</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/push?v=Foo-Header&amp;c=0</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>... even if the header concerned is not normally sent by the browser</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>Serviceworker-added headers</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/sw-header?v=SW-Added-Header</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>A response that varies on a header added by a serviceworker should miss on the first load, because it's not in any cache.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-header?v=SW-Added-Header</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>If the value of the header added by the serviceworker changes on each request, then subsequent identical requests should also not hit the HTTP cache</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-header</td>
+				<td class='headers'></td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>If a Serviceworker adds a header to a request but the server does not vary on it, the response should be available to subsequent requests from the browser cache</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-header</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>Identical to previous request, random value added to a header by a serviceworker, but since the server did not vary on that value, it should hit cache.</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>Serviceworker cache</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/util/sw-clear-cache</td>
+				<td class='headers'></td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Clear the service worker cache in preparation for the test</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>First variation of a request for something not in SW cache, expect a MISS</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>Repeat the first variation.  Expect a HIT despite not being cachable in browser cache, because it will be cached in SW cache.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
+				<td class='headers'>Foo-Header: 2</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Second variation: Vary on the same header but with a different value, expect a MISS</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
+				<td class='headers'>Foo-Header: 2</td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>Repeat second variation, expect a HIT</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Back to the first variation.  If serviceworker cache matches the behaviour of the HTTP cache, this should now be a miss.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
+				<td class='headers'>Foo-Header: 2</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>Repeat the second variation again, expect a MISS</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>304 Not Modified (with matching validator)</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/304-special?matching</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Seed with a cachable response that varies on Accept (not Foo-Header) but requires revalidation</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/304-special?matching</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'>304</td>
+				<td class='actual'></td>
+				<td class='note'>Hits cache but requires revalidation, so sends a conditional GET.  Server returns a 304 but with <code>Vary: Accept, Foo-Header</code>.  The original request that populated the cache and the current request would satisfy this new Vary.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/304-special?matching</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'>304</td>
+				<td class='actual'></td>
+				<td class='note'>Further requests continue to hit cache.</td>
+			</tr>
+		</table>
+	</section>
+
+	<section class='test-group'>
+		<h2>304 Not Modified (with non-matching validator)</h2>
+		<table class='fui-table'>
+			<thead>
+				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+			</thead>
+			<tr class='test'>
+				<td class='url'>/304-special?non-matching</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'></td>
+				<td class='actual'></td>
+				<td class='note'>Seed with a cachable response that varies on Accept (not Foo-Header) but requires revalidation</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/304-special?non-matching</td>
+				<td class='headers'>Foo-Header: 2</td>
+				<td class='expect'>304</td>
+				<td class='actual'></td>
+				<td class='note'>Hits cache but requires revalidation, so sends a conditional GET.  Server returns a 304 but with <code>Vary: Accept, Foo-Header</code>.  The original request that populated the cache and the current request do not satisfy this new Vary, because the value of Foo-Header has changed.  Nevertheless the cached object should still be used, and the cached response should be updated with the new header values in the 304.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/304-special?non-matching</td>
+				<td class='headers'>Foo-Header: 1</td>
+				<td class='expect'>304</td>
+				<td class='actual'></td>
+				<td class='note'>If the HTTP spec is followed, the previous response will have updated the cached response headers, but not the reference request header values that triggered the original response.  If that's the case, fooheader=1 should now match the stored version and this will be a hit.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/304-special?non-matching</td>
+				<td class='headers'>Foo-Header: 2</td>
+				<td class='expect'>MISS</td>
+				<td class='actual'></td>
+				<td class='note'>If instead of updating only the response headers, the browser updated the request headers too, then fooheader=2 will score a hit, but this is contra-spec.  If the browser didn't update the cache at all, then both this and the test above will be HITs.</td>
+			</tr>
+		</table>
+	</section>
 
 	<h2>Conclusions</h2>
 
@@ -215,11 +440,25 @@
 
 	</div>
 	<script>
-		let testNum = 0;
+
+		const MAX_NETWORK_DELAY = 150;
+
+		if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('/sw.js').catch(err => {
+					console.log('ServiceWorker registration failed: ', err);
+				});
+			});
+		}
+
 		const testRun = Array.from(document.querySelectorAll('.test')).reduce((out, testRow) => {
-			testRow.querySelector('.seqnum').innerHTML = testNum++;
 			return out.then(() => {
-				const url = new URL(location.protocol + '//' + location.host + testRow.querySelector('.url').innerText);
+				const pathfrag = testRow.querySelector('.url').innerText;
+				const url = new URL(
+					location.protocol + '//' +
+					location.host +
+					(pathfrag.startsWith('/util/') ? pathfrag : '/test'+pathfrag)
+				);
 				const headers = testRow
 					.querySelector('.headers')
 					.innerText
@@ -234,21 +473,27 @@
 					performance.clearResourceTimings();
 				}
 				const startTime = performance.now();
-				console.log(url);
 				return fetch(url, {headers: headers, credentials: "same-origin"})
 					.then(resp => {
 						return resp.text();
 					})
 					.then(data => {
 						const endTime = performance.now();
+						const resultsByTime = {
+							'HIT': 0,
+							'304': 500,
+							'MISS': 1000
+						};
 						let result = null;
 
 						// For browsers that support resource timing, use that to figure out whether the
 						// response was a cache hit
+						/* DISABLED because serviceworker, grmblgrmbl
 						if ('getEntriesByName' in performance) {
 							const perfentries = performance.getEntriesByName(url).filter(e => e instanceof PerformanceResourceTiming);
 							if (perfentries.length) {
 								const perf = perfentries.pop();
+								console.log(url.pathname, perf);
 								if ('transferSize' in perf && perf.transferSize === 0) {
 									result = 'HIT';
 								} else if (Math.round(perf.responseStart - perf.requestStart) < 250) {
@@ -257,20 +502,25 @@
 									result = 'MISS';
 								}
 							}
-						}
+						} */
 
 						// If the browser doesn't support resource timing or didn't generate a PerformanceResourceTiming
 						// entry for some reason, use manually measured request timing to guess whether it was a cache hit
 						if (!result) {
-							if (Math.round(endTime - startTime) < 250) {
-								result = 'HIT';
-							} else {
-								result = 'MISS';
-							}
+							const elapsed = endTime - startTime;
+							Object.keys(resultsByTime).forEach(r => {
+								if (elapsed > resultsByTime[r] && elapsed < resultsByTime[r] + MAX_NETWORK_DELAY) {
+									result = r;
+								}
+							});
 						}
-						testRow.querySelector('.actual').innerHTML = result;
-						if (result !== testRow.querySelector('.expect').innerText) {
-							testRow.classList.add('fail');
+
+						const expect = testRow.querySelector('.expect').innerText;
+						if (expect) {
+							testRow.querySelector('.actual').innerHTML = result;
+							if (result !== testRow.querySelector('.expect').innerText) {
+								testRow.classList.add('fail');
+							}
 						}
 					})
 				;
