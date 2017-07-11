@@ -17,7 +17,7 @@ const app = express();
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-	res.set('Cache-control', 'max-age=30, public');
+	res.set('Cache-control', 'max-age=30, private');
 	res.set('Timing-Allow-Origin', '*');
 	next();
 });
@@ -27,7 +27,7 @@ app.use(express.static('public'));
 
 // Special cases for 304s
 app.get("/test/304-special", (req, res) => {
-	res.set('Cache-control', 'must-revalidate, max-age=0, public');
+	res.set('Cache-control', 'must-revalidate, max-age=0, private');
 	res.set('Content-type', 'text/plain');
 	if (req.headers['if-modified-since']) {
 		res.set('Vary', 'Accept, Foo-Header');
