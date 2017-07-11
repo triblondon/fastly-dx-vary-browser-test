@@ -19,6 +19,16 @@
 		h1 {
 			margin-bottom: 20px;
 		}
+		section {
+			margin: 20px 0;
+		}
+		.fui-table {
+			margin: 10px 0 0 0;
+		}
+		.warning {
+			background: #ccc;
+			padding: 10px;
+		}
 		tr.fail {
 			background: #fff1b9;
 		}
@@ -175,7 +185,7 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
+	<section class='test-group' data-requires='preload'>
 		<h2>Preload</h2>
 		<table class='fui-table'>
 			<thead>
@@ -233,7 +243,7 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
+	<section class='test-group' data-requires='h2'>
 		<h2>HTTP/2 Push</h2>
 		<table class='fui-table'>
 			<thead>
@@ -270,7 +280,7 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
+	<section class='test-group' data-requires='sw'>
 		<h2>Serviceworker-added headers</h2>
 		<table class='fui-table'>
 			<thead>
@@ -307,7 +317,7 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
+	<section class='test-group' data-requires='sw'>
 		<h2>Serviceworker cache</h2>
 		<table class='fui-table'>
 			<thead>
@@ -442,6 +452,11 @@
 	<script>
 
 		const MAX_NETWORK_DELAY = 150;
+		const supports = {
+			sw: false,
+			preload: false,
+			h2: (document.cookie.indexOf('h2=1') !== -1)
+		};
 
 		if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
 			window.addEventListener('load', () => {
@@ -449,7 +464,21 @@
 					console.log('ServiceWorker registration failed: ', err);
 				});
 			});
+		} else if (navigator.serviceWorker.controller) {
+			supports.sw = true;
 		}
+
+		const lpel = document.createElement("link");
+		if (('supports' in lpel.relList) && lpel.relList.supports('preload')) {
+			supports.preload = true;
+		}
+
+		Array.from(document.querySelectorAll('.test-group[data-requires]')).forEach(el => {
+			if (!supports[el.dataset.requires]) {
+				const title = el.querySelector('h2').innerHTML;
+				el.innerHTML = '<p class="warning">'+title+' test group disabled because this browser does not support '+el.dataset.requires+' or it is not enabled.</p>';
+			}
+		});
 
 		const testRun = Array.from(document.querySelectorAll('.test')).reduce((out, testRow) => {
 			return out.then(() => {
@@ -485,24 +514,6 @@
 							'MISS': 1000
 						};
 						let result = null;
-
-						// For browsers that support resource timing, use that to figure out whether the
-						// response was a cache hit
-						/* DISABLED because serviceworker, grmblgrmbl
-						if ('getEntriesByName' in performance) {
-							const perfentries = performance.getEntriesByName(url).filter(e => e instanceof PerformanceResourceTiming);
-							if (perfentries.length) {
-								const perf = perfentries.pop();
-								console.log(url.pathname, perf);
-								if ('transferSize' in perf && perf.transferSize === 0) {
-									result = 'HIT';
-								} else if (Math.round(perf.responseStart - perf.requestStart) < 250) {
-									result = 'HIT';
-								} else {
-									result = 'MISS';
-								}
-							}
-						} */
 
 						// If the browser doesn't support resource timing or didn't generate a PerformanceResourceTiming
 						// entry for some reason, use manually measured request timing to guess whether it was a cache hit
