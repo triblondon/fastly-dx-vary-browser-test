@@ -451,7 +451,6 @@
 	</div>
 	<script>
 
-		const MAX_NETWORK_DELAY = 150;
 		const supports = {
 			sw: false,
 			preload: false,
@@ -510,26 +509,11 @@
 					})
 					.then(data => {
 						const endTime = performance.now();
-						const resultsByTime = {
-							'HIT': 0,
-							'304': 500,
-							'MISS': 1000
-						};
-						let result = null;
-
-						// If the browser doesn't support resource timing or didn't generate a PerformanceResourceTiming
-						// entry for some reason, use manually measured request timing to guess whether it was a cache hit
-						if (!result) {
-							const elapsed = endTime - startTime;
-							Object.keys(resultsByTime).forEach(r => {
-								if (elapsed > resultsByTime[r] && elapsed < resultsByTime[r] + MAX_NETWORK_DELAY) {
-									result = r;
-								}
-							});
-						}
-
 						const expect = testRow.querySelector('.expect').innerText;
+
 						if (expect) {
+							const elapsed = endTime - startTime;
+							const actual = (elapsed > DELAY_MISS) ? 'MISS' : (elapsed > DELAY_304) ? '304' : 'HIT';
 							testRow.querySelector('.actual').innerHTML = result;
 							if (result !== testRow.querySelector('.expect').innerText) {
 								testRow.classList.add('fail');
