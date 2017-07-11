@@ -14,16 +14,19 @@ const DELAY_TIME = 1000;
 
 const app = express();
 
+app.set('etag', false);
+
 app.use(cookieParser());
 
 app.use((req, res, next) => {
 	res.set('Cache-control', 'max-age=30, private');
 	res.set('Timing-Allow-Origin', '*');
+	res.removeHeader('x-powered-by');
 	next();
 });
 
 // Serve the static part of the demo
-app.use(express.static('public'));
+app.use(express.static('public', { etag:false, lastModified:false }));
 
 // Special cases for 304s
 app.get("/test/304-special", (req, res) => {
