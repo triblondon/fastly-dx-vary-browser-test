@@ -517,7 +517,7 @@
 							const elapsed = endTime - startTime;
 							const actual = (elapsed > DELAY_MISS) ? 'MISS' : (elapsed > DELAY_304) ? '304' : 'HIT';
 							testRow.querySelector('.actual').innerHTML = result;
-							if (result !== testRow.querySelector('.expect').innerText) {
+							if (actual !== testRow.querySelector('.expect').innerText) {
 								testRow.classList.add('fail');
 							}
 						}
