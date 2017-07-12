@@ -272,17 +272,17 @@
 			</tr>
 			<tr class='test'>
 				<td class='url'>/push?v=Foo-Header&amp;c=0</td>
-				<td class='headers'></td>
-				<td class='expect'>HIT</td>
-				<td class='actual'></td>
-				<td class='note'>... even if the header concerned is not normally sent by the browser</td>
-			</tr>
-			<tr class='test'>
-				<td class='url'>/push?v=Foo-Header&amp;c=0</td>
 				<td class='headers'>Foo-Header: 42</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
 				<td class='note'>Should MISS since the pushed resource varies on Foo-Header, but doesn't know what Foo-Header value we'll be sending. However, some browsers incorrectly ignore Vary on pushed resources.</td>
+			</tr>
+			<tr class='test'>
+				<td class='url'>/push?v=Foo-Header&amp;c=0</td>
+				<td class='headers'></td>
+				<td class='expect'>HIT</td>
+				<td class='actual'></td>
+				<td class='note'>... even if the header concerned is not normally sent by the browser</td>
 			</tr>
 		</table>
 	</section>
