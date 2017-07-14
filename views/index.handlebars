@@ -4,13 +4,13 @@
 	<meta charset="utf-8">
 	<title>Fastly Vary in browser test</title>
 	<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
-	<link rel="preload" href="/test/preload" as="style">
-	<link rel="preload" href="/test/preload?c=0" as="style">
-	<link rel="preload" href="/test/preload?v=Accept-Encoding" as="style">
-	<link rel="preload" href="/test/preload?v=Accept-Encoding&c=0" as="style">
-	<link rel="preload" href="/test/preload?v=Accept" as="style">
-	<link rel="preload" href="/test/preload?v=Foo-Header" as="style">
-	<link rel="preload" href="/test/preload?v=Accept%2C%20Accept-Encoding" as="style">
+	<link rel="preload" href="/test/{{id}}/preload" as="style">
+	<link rel="preload" href="/test/{{id}}/preload?c=0" as="style">
+	<link rel="preload" href="/test/{{id}}/preload?v=Accept-Encoding" as="style">
+	<link rel="preload" href="/test/{{id}}/preload?v=Accept-Encoding&c=0" as="style">
+	<link rel="preload" href="/test/{{id}}/preload?v=Accept" as="style">
+	<link rel="preload" href="/test/{{id}}/preload?v=Foo-Header" as="style">
+	<link rel="preload" href="/test/{{id}}/preload?v=Accept%2C%20Accept-Encoding" as="style">
 	<link rel="stylesheet" href="/css/ux-platform.css">
 	<style>
 		body {
@@ -35,6 +35,11 @@
 		tr.fail .expect,
 		tr.fail .actual {
 			font-weight: bold;
+		}
+		ul {
+			list-style-type: disc;
+			padding-left: 40px;
+			margin: 1em 0;
 		}
 	</style>
 </head>
@@ -78,7 +83,7 @@
 				<td class='headers'>Accept: application/json</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
-				<td class='note'>Back to original varied header value.  HIT for intermediate caches.  MISS for browsers because they use vary as a v validator only</td>
+				<td class='note'>Back to original varied header value.  HIT for intermediate caches.  MISS for browsers because they use vary as a validator only</td>
 			</tr>
 		</table>
 	</section>
@@ -224,27 +229,28 @@
 				<td class='headers'></td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
-				<td class='note'>Varying on <code>Accept</code> rather than <code>Accept-Encoding</code>.  Preload links have an <code>as</code> attribute, which specifies what type of thing you are preloading, and for the purposes of this demo we are preloading <code>as=style</code>.  For the test request, we use a normal fetch, which likely means a different <code>Accept</code> header, and a MISS.</td>
+				<td class='note'>Varying on <code>Accept</code> causes mismatch because preload is sensitive to type (see <code>as=style</code> attribute => MISS</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/preload?v=Foo-Header</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>As above but varying on <code>Foo-Header</code>.  <code>Foo-Header</code> is not sent in the preload request nor in the test request so it should hit the cache.</td>
+				<td class='note'><code>Foo-Header</code> not sent in the preload request nor in the test request => HIT</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/preload?v=Accept%2C%20Accept-Encoding</td>
 				<td class='headers'></td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
-				<td class='note'>Now the preloaded object has a Vary header with multiple request headers listed.  Because this list includes <code>Accept</code>, which we have established will differ between the preload request and the test request, this will be a miss.</td>
+				<td class='note'>Multiple headers, includes <code>Accept</code> => MISS</td>
 			</tr>
 		</table>
 	</section>
 
 	<section class='test-group' data-requires='h2'>
 		<h2>HTTP/2 Push</h2>
+		<p><strong>Note:</strong> Fastly's HTTP/2 implementation uses <a href='https://h2o.examp1e.net/'>h2o</a>, which pushes assets only once per connection, so if you have run the test suite already,
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
@@ -254,7 +260,7 @@
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>An asset sent in an HTTP/2 Server Push should hit the cache when requested later by the page</td>
+				<td class='note'>Simple push => HIT</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/push?c=0</td>
@@ -393,7 +399,7 @@
 				<td class='headers'>Foo-Header: 1</td>
 				<td class='expect'>304</td>
 				<td class='actual'></td>
-				<td class='note'>Hits cache but requires revalidation, so sends a conditional GET.  Server returns a 304 but with <code>Vary: Accept, Foo-Header</code>.  The original request that populated the cache and the current request would satisfy this new Vary.</td>
+				<td class='note'>Expect initial conditional HIT and revalidation request. Server returns a 304 but with <code>Vary: Accept, Foo-Header</code> (different Vary!).  Use cache, update with new Vary header => HIT</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/304-special?matching</td>
@@ -416,28 +422,21 @@
 				<td class='headers'>Foo-Header: 1</td>
 				<td class='expect'></td>
 				<td class='actual'></td>
-				<td class='note'>Seed with a cachable response that varies on Accept (not Foo-Header) but requires revalidation</td>
+				<td class='note'>Seed with a response that <code>Vary: Accept</code> (not Foo-Header), cacheable but requires revalidation</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/304-special?non-matching</td>
 				<td class='headers'>Foo-Header: 2</td>
 				<td class='expect'>304</td>
 				<td class='actual'></td>
-				<td class='note'>Hits cache but requires revalidation, so sends a conditional GET.  Server returns a 304 but with <code>Vary: Accept, Foo-Header</code>.  The original request that populated the cache and the current request do not satisfy this new Vary, because the value of Foo-Header has changed.  Nevertheless the cached object should still be used, and the cached response should be updated with the new header values in the 304.</td>
+				<td class='note'>Expect initial conditional HIT and revalidation request. Server returns a 304 but with <code>Vary: Accept, Foo-Header</code> (different Vary!).  Use cache, update with new Vary header => HIT</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/304-special?non-matching</td>
 				<td class='headers'>Foo-Header: 1</td>
-				<td class='expect'>304</td>
-				<td class='actual'></td>
-				<td class='note'>If the HTTP spec is followed, the previous response will have updated the cached response headers, but not the reference request header values that triggered the original response.  If that's the case, fooheader=1 should now match the stored version and this will be a hit.</td>
-			</tr>
-			<tr class='test'>
-				<td class='url'>/304-special?non-matching</td>
-				<td class='headers'>Foo-Header: 2</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
-				<td class='note'>If instead of updating only the response headers, the browser updated the request headers too, then fooheader=2 will score a hit, but this is contra-spec.  If the browser didn't update the cache at all, then both this and the test above will be HITs.</td>
+				<td class='note'>Spec unclear, but browsers seem to update both the reference request and the cache object, meaning that the cached version  is now the variation for fooheader=2.  Requesting fooheader=1 should therefore MISS.</td>
 			</tr>
 		</table>
 	</section>
@@ -445,12 +444,14 @@
 	<h2>Conclusions</h2>
 
 	<ul>
-		<li>In terms of ability to instrument and understand what is going on, Chrome (58) and Firefox (54) both have support for the full ResourceTiming API, including reporting of <code>transferSize</code> which allows for easy and reliable understanding of whether a request hit cache.  Edge (15) does not support <code>transferSize</code> but we can make a reasonable approximation by using the timing metrics.  Safari (10) has no support for ResourceTiming at all, so we have to measure request timings manually.</li>
+		<li>FF Serviceworker cache behaviour differs to Chrome, which is right?</li>
+		<li>Chrome does not cache preloaded assets if they have no-store.  Bug?</li>
 	</ul>
 
 	</div>
 	<script>
 
+		const testid = "{{id}}";
 		const supports = {
 			sw: false,
 			preload: false,
@@ -489,7 +490,7 @@
 				const url = new URL(
 					location.protocol + '//' +
 					location.host +
-					(pathfrag.startsWith('/util/') ? pathfrag : '/test'+pathfrag)
+					(pathfrag.startsWith('/util/') ? pathfrag : '/test/'+testid+pathfrag)
 				);
 				const headers = testRow
 					.querySelector('.headers')

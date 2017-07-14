@@ -1,8 +1,8 @@
 
-const HANDLE_PATTERN = /^\/(test|util)\/sw\-/;
-const ADD_HEADER_PATTERN = /^\/test\/sw\-header$/;
+const HANDLE_PATTERN = /^\/(test|util)\/(\d+\/)?sw\-/;
+const ADD_HEADER_PATTERN = /^\/test\/\d+\/sw\-header$/;
 const CLEAR_CACHE_PATTERN = /^\/util\/sw\-clear\-cache$/;
-const USE_CACHE_PATTERN = /^\/test\/sw\-cache$/;
+const USE_CACHE_PATTERN = /^\/test\/\d+\/sw\-cache$/;
 
 
 self.addEventListener('install', event => {

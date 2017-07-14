@@ -4,16 +4,18 @@ require('dotenv').load();
 
 const path = require('path');
 const express = require('express'); require('express-csv');
+const exphbs  = require('express-handlebars');
 const events = require('events');
 const cookieParser = require('cookie-parser');
 const moment = require('moment');
-
 
 const PORT = process.env.PORT || 3102;
 const DELAY_TIME = 1000;
 
 const app = express();
 
+app.engine('handlebars', exphbs({defaultLayout: false}));
+app.set('view engine', 'handlebars');
 app.set('etag', false);
 
 app.use(cookieParser());
@@ -28,8 +30,15 @@ app.use((req, res, next) => {
 // Serve the static part of the demo
 app.use(express.static('public', { etag:false, lastModified:false }));
 
+// Serve the main test page
+app.get('/', (req, res) => {
+	const testid = Date.now() + Math.round(Math.random()*10000000);
+	res.set('Fastly-Test-ID', testid);
+	res.render('index', {id: testid});
+});
+
 // Special cases for 304s
-app.get("/test/304-special", (req, res) => {
+app.get("/test/:id/304-special", (req, res) => {
 	res.set('Cache-control', 'must-revalidate, max-age=0, private');
 	res.set('Content-type', 'text/plain');
 	if (req.headers['if-modified-since']) {
@@ -44,12 +53,13 @@ app.get("/test/304-special", (req, res) => {
 		res.set('Vary', 'Accept');
 		setTimeout(() => {
 			res.status(200);
-			res.end('304 special ' + Date.now());
+			res.end('304 special ' + req.params.id + ' ' + Date.now());
 		}, DELAY_TIME);
 	}
 });
 
-app.get("/test/:name", (req, res) => {
+// Generic endpoint for most tests
+app.get("/test/:id/:name", (req, res) => {
 	setTimeout(() => {
 		if ('v' in req.query) {
 			res.set('Vary', req.query.v);
@@ -58,7 +68,7 @@ app.get("/test/:name", (req, res) => {
 			res.set('Cache-Control', 'private, no-store');
 		}
 		res.set('Content-type', 'text/plain');
-		res.end(req.params.name + ' ' + Date.now());
+		res.end(req.params.name + ' ' + req.params.id + ' ' + Date.now());
 	}, DELAY_TIME);
 });
 
