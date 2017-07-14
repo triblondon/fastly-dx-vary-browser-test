@@ -472,7 +472,7 @@
 		}
 
 		const lpel = document.createElement("link");
-		if (('supports' in lpel.relList) && lpel.relList.supports('preload')) {
+		if (('relList' in lpel) && ('supports' in lpel.relList) && lpel.relList.supports('preload')) {
 			supports.preload = true;
 		}
 
