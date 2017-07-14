@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 	res.set('Fastly-Test-ID', testid);
 	res.set('Link', '</test/'+testid+'/preload>; rel=preload; as=style; nopush, ' +
 		'</test/'+testid+'/preload?c=0>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/preload?v=Accept-Encodin>; rel=preload; as=style; nopush, ' +
+		'</test/'+testid+'/preload?v=Accept-Encoding>; rel=preload; as=style; nopush, ' +
 		'</test/'+testid+'/preload?v=Accept-Encoding&c=0>; rel=preload; as=style; nopush, ' +
 		'</test/'+testid+'/preload?v=Accept>; rel=preload; as=style; nopush, ' +
 		'</test/'+testid+'/preload?v=Foo-Header>; rel=preload; as=style; nopush, ' +
