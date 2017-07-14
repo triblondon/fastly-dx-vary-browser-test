@@ -49,7 +49,7 @@
 	<h1>Vary granularity test</h1>
 
 	<p>This test is designed to show that browsers do not store multiple copies of objects that have a <code>Vary</code> header on the response, one for each variation, as intermediate caches do.  When you serve a response through Fastly, we store each variation of the same URL as a separate cache entry, because different end users may want different variations (eg for language variants). However, a single user rarely changes their
-
+<!--
 	<section class='test-group'>
 		<h2>Accept</h2>
 
@@ -247,7 +247,7 @@
 			</tr>
 		</table>
 	</section>
-
+-->
 	<section class='test-group' data-requires='h2'>
 		<h2>HTTP/2 Push</h2>
 		<table class='fui-table'>
