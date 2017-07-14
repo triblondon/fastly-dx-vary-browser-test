@@ -34,6 +34,20 @@ app.use(express.static('public', { etag:false, lastModified:false }));
 app.get('/', (req, res) => {
 	const testid = Date.now() + Math.round(Math.random()*10000000);
 	res.set('Fastly-Test-ID', testid);
+	res.set('Link', '</test/'+testid+'/preload>; as=style; nopush, ' +
+		'</test/'+testid+'/preload?c=0>; as=style; nopush, ' +
+		'</test/'+testid+'/preload?v=Accept-Encodin>; as=style; nopush, ' +
+		'</test/'+testid+'/preload?v=Accept-Encoding&c=0>; as=style; nopush, ' +
+		'</test/'+testid+'/preload?v=Accept>; as=style; nopush, ' +
+		'</test/'+testid+'/preload?v=Foo-Header>; as=style; nopush, ' +
+		'</test/'+testid+'/preload?v=Accept%2C%20Accept-Encoding>; as=style; nopush, ' +
+		'</test/'+testid+'/push>; x-http2-push-only, ' +
+		'</test/'+testid+'/push?c=0>; x-http2-push-only, ' +
+		'</test/'+testid+'/push?v=Accept-Encoding&c=0>; x-http2-push-only, ' +
+		'</test/'+testid+'/push?v=Foo-Header&c=0>; x-http2-push-only'
+	);
+	// Tell the browser that we support H2
+	res.cookie('h2', 1, { maxAge: 5000, path: '/' });
 	res.render('index', {id: testid});
 });
 
