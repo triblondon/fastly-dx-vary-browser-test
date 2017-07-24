@@ -34,6 +34,16 @@
 			padding-left: 40px;
 			margin: 1em 0;
 		}
+		.bug {
+			background: #ef4a4a;
+			display: inline-block;
+			border-radius: 2px;
+			padding: 3px 5px;
+			color: white;
+		}
+		.bug a {
+			color:beige;
+		}
 	</style>
 </head>
 <body class='online'>
@@ -201,7 +211,9 @@
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>Preloaded asset not normally cachable in HTTP cache => HIT<br/>MISS: Browser does not have a preload cache?</td>
+				<td class='note'>Preloaded asset not normally cachable in HTTP cache => HIT<br/>
+					<div class='bug'>Chrome (59): Does not cache</div>
+				</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/preload?ct=image%2Fgif&amp;v=Accept-Encoding</td>
@@ -215,7 +227,9 @@
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>Preloaded asset with vary not normally cachable in HTTP cache => HIT<br/>MISS: Browser does not have a preload cache?</td>
+				<td class='note'>Preloaded asset with vary not normally cachable in HTTP cache => HIT<br/>
+					<div class='bug'>Chrome (59): Does not cache</div>
+				</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/preload?ct=image%2Fgif&amp;v=Accept</td>
@@ -252,7 +266,9 @@
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>Simple push => HIT</td>
+				<td class='note'>Simple push => HIT<br/>
+					<div class='bug'>Safari (10): Sometimes does not use H2 push cache at all</div>
+				</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/push?ct=image%2Fgif&amp;c=0</td>
@@ -273,7 +289,11 @@
 				<td class='headers'>Foo-Header: 42</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
-				<td class='note'>Should MISS since the pushed resource varies on Foo-Header, but doesn't know what Foo-Header value we'll be sending. However, some browsers incorrectly ignore Vary on pushed resources.</td>
+				<td class='note'>Should MISS since the pushed resource varies on Foo-Header, but doesn't know what Foo-Header value we'll be sending. However, some browsers incorrectly ignore Vary on pushed resources.<br/>
+					<div class='bug'>FF (54): Ignores vary, scores a hit (<a href='https://bugzilla.mozilla.org/show_bug.cgi?id=1368664'>Bug</a>)</div>
+					<div class='bug'>Chrome (59): Ignores vary, scores a hit (<a href='https://bugs.chromium.org/p/chromium/issues/detail?id=554220'>Bug</a>)</div>
+					<div class='bug'>Safari (10): Ignores vary, scores a hit</div>
+				</td>
 			</tr>
 		</table>
 	</section>
@@ -361,14 +381,18 @@
 				<td class='headers'>Foo-Header: 1</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
-				<td class='note'>Back to the first variation.  If serviceworker cache matches the behaviour of the HTTP cache, this should now be a miss.</td>
+				<td class='note'>Back to the first variation.  If serviceworker cache matches the behaviour of the HTTP cache, this should now be a miss.<br/>
+					<div class='bug'>FF (54): Serviceworker cache behaves like intermediate cache</div>
+				</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
 				<td class='headers'>Foo-Header: 2</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
-				<td class='note'>Repeat the second variation again, expect a MISS</td>
+				<td class='note'>Repeat the second variation again, expect a MISS<br/>
+					<div class='bug'>FF (54): Serviceworker cache behaves like intermediate cache</div>
+				</td>
 			</tr>
 		</table>
 	</section>
@@ -433,13 +457,9 @@
 		</table>
 	</section>
 
-	<h2>Conclusions</h2>
+	<h2>Additional notes</h2>
 
 	<ul>
-		<li>[FF] Serviceworker cache behaves like intermediate cache</li>
-		<li>[Chrome] Fetch API does not use the preload cache (https://bugs.chromium.org/p/chromium/issues/detail?id=652228)</li>
-		<li>[Chrome, FF] HTTP/2 push cache ignores vary when matching pushed assets (https://bugs.chromium.org/p/chromium/issues/detail?id=554220, https://bugzilla.mozilla.org/show_bug.cgi?id=1368664)</li>
-		<li>[Safari] Sometimes uses H2 Push cache, sometimes doesn't.  When it does use it, it ignores Vary (inconsistent with Jake's test)</li>
 		<li>[Edge] Does not appear to support H2 Push when using fetch, but behaves as expected with image tag</li>
 		<li>[Edge] Cookies prevent cache matches (but only when using fetch)???</li>
 	</ul>
