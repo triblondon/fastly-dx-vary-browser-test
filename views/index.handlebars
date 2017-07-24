@@ -43,8 +43,8 @@
 
 	<p>This test is designed to show that browsers do not store multiple copies of objects that have a <code>Vary</code> header on the response, one for each variation, as intermediate caches do.  When you serve a response through Fastly, we store each variation of the same URL as a separate cache entry, because different end users may want different variations (eg for language variants). However, a single user rarely changes their
 
-	<section class='test-group'>
-		<h2>Accept</h2>
+	<section class='test-group' data-groupname='accept'>
+		<h2>Accept <a href='/#accept'>🔗</a></h2>
 
 		<table class='fui-table'>
 			<thead>
@@ -81,8 +81,8 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
-		<h2>Accept-Language</h2>
+	<section class='test-group' data-groupname='lang'>
+		<h2>Accept-Language <a href='/#lang'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -118,8 +118,8 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
-		<h2>Cookie</h2>
+	<section class='test-group' data-groupname='cookie'>
+		<h2>Cookie <a href='/#cookie'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -183,8 +183,8 @@
 		</table>
 	</section>
 
-	<section class='test-group' data-requires='preload'>
-		<h2>Link rel=Preload</h2>
+	<section class='test-group' data-requires='preload' data-groupname='preload'>
+		<h2>Link rel=Preload <a href='/#preload'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -241,8 +241,8 @@
 		</table>
 	</section>
 
-	<section class='test-group' data-requires='h2'>
-		<h2>HTTP/2 Push</h2>
+	<section class='test-group' data-requires='h2' data-groupname='h2push'>
+		<h2>HTTP/2 Push <a href='/#h2push'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -278,8 +278,8 @@
 		</table>
 	</section>
 
-	<section class='test-group' data-requires='sw'>
-		<h2>Serviceworker-added headers</h2>
+	<section class='test-group' data-requires='sw' data-groupname='sw-headers'>
+		<h2>Serviceworker-added headers <a href='/#sw-headers'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -315,8 +315,8 @@
 		</table>
 	</section>
 
-	<section class='test-group' data-requires='sw'>
-		<h2>Serviceworker cache</h2>
+	<section class='test-group' data-requires='sw' data-groupname='sw-cache'>
+		<h2>Serviceworker cache <a href='/#sw-cache'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -373,8 +373,8 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
-		<h2>304 Not Modified (with matching validator)</h2>
+	<section class='test-group' data-groupname='304-match'>
+		<h2>304 Not Modified (with matching validator) <a href='/#304-match'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -403,8 +403,8 @@
 		</table>
 	</section>
 
-	<section class='test-group'>
-		<h2>304 Not Modified (with non-matching validator)</h2>
+	<section class='test-group' data-groupname='304-nomatch'>
+		<h2>304 Not Modified (with non-matching validator) <a href='/#304-nomatch'>🔗</a></h2>
 		<table class='fui-table'>
 			<thead>
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
@@ -473,67 +473,79 @@
 			supports.preload = true;
 		}
 
-		Array.from(document.querySelectorAll('.test-group[data-requires]')).forEach(el => {
-			if (!supports[el.dataset.requires]) {
+		const filter = location.hash.replace(/^\#/, '');
+		Array.from(document.querySelectorAll('.test-group')).forEach(el => {
+			if (el.dataset.groupname && filter && filter !== el.dataset.groupname) {
+				const title = el.querySelector('h2').innerHTML;
+				el.innerHTML = '<p class="warning">'+title+' test group filtered out.  Reload without <code>#'+filter+'</code> to all suites</p>';
+			} else if (el.dataset.requires && !supports[el.dataset.requires]) {
 				const title = el.querySelector('h2').innerHTML;
 				el.innerHTML = '<p class="warning">'+title+' test group disabled because this browser does not support '+el.dataset.requires+' or it is not enabled.</p>';
 			}
 		});
 
-		const testRun = Array.from(document.querySelectorAll('.test')).reduce((out, testRow) => {
-			return out.then(() => {
-				let fetchPromise;
-				const pathfrag = testRow.querySelector('.url').innerText;
-				const url = new URL(
-					location.protocol + '//' +
-					location.host +
-					(pathfrag.startsWith('/util/') ? pathfrag : '/test/'+testid+pathfrag)
-				);
-				const headers = testRow
-					.querySelector('.headers')
-					.innerText
-					.split(/\s*;\s*/)
-					.reduce((heads, item) => {
-						const [k,v] = item.split(/:\s*/, 2);
-						if (k) heads[k] = v;
-						return heads;
-					}, {})
-				;
-				const expect = testRow.querySelector('.expect').innerText;
-				const startTime = performance.now();
+		function run () {
 
-				if (Object.keys(headers).length) {
-					console.log('Using fetch for', url.pathname, url.searchParams.toString());
-					fetchPromise = fetch(url, {headers: headers, credentials: "same-origin"}).then(resp => resp.text())
-				} else {
-					console.log('Using image for', url.pathname, url.searchParams.toString());
-					fetchPromise = new Promise(resolve => {
-						const imgEl = document.createElement('img');
-						imgEl.onload = imgEl.onerror = () => {
-							document.body.removeChild(imgEl);
-							resolve();
-						};
-						const imgStartTime = performance.now();
-						imgEl.src = url.toString();
-						document.body.appendChild(imgEl);
-					});
-				}
 
-				return fetchPromise.then(() => {
-					const endTime = performance.now();
+			const testRun = Array.from(document.querySelectorAll('.test')).reduce((out, testRow) => {
+				return out.then(() => {
+					let fetchPromise;
+					const pathfrag = testRow.querySelector('.url').innerText;
+					const url = new URL(
+						location.protocol + '//' +
+						location.host +
+						(pathfrag.startsWith('/util/') ? pathfrag : '/test/'+testid+pathfrag)
+					);
+					const headers = testRow
+						.querySelector('.headers')
+						.innerText
+						.split(/\s*;\s*/)
+						.reduce((heads, item) => {
+							const [k,v] = item.split(/:\s*/, 2);
+							if (k) heads[k] = v;
+							return heads;
+						}, {})
+					;
+					const expect = testRow.querySelector('.expect').innerText;
+					const startTime = performance.now();
 
-					if (expect) {
-						const elapsed = endTime - startTime;
-						const actual = (elapsed > DELAY_MISS) ? 'MISS' : (elapsed > DELAY_304) ? '304' : 'HIT';
-						testRow.querySelector('.actual').innerHTML = actual;
-						if (actual !== testRow.querySelector('.expect').innerText) {
-							testRow.classList.add('fail');
-						}
+					if (Object.keys(headers).length) {
+						console.log('Using fetch for', url.pathname, url.searchParams.toString());
+						fetchPromise = fetch(url, {headers: headers, credentials: "same-origin"}).then(resp => resp.text())
+					} else {
+						console.log('Using image for', url.pathname, url.searchParams.toString());
+						fetchPromise = new Promise(resolve => {
+							const imgEl = document.createElement('img');
+							imgEl.onload = imgEl.onerror = () => {
+								document.body.removeChild(imgEl);
+								resolve();
+							};
+							const imgStartTime = performance.now();
+							imgEl.src = url.toString();
+							document.body.appendChild(imgEl);
+						});
 					}
+
+					return fetchPromise.then(() => {
+						const endTime = performance.now();
+
+						if (expect) {
+							const elapsed = endTime - startTime;
+							const actual = (elapsed > DELAY_MISS) ? 'MISS' : (elapsed > DELAY_304) ? '304' : 'HIT';
+							testRow.querySelector('.actual').innerHTML = actual;
+							if (actual !== testRow.querySelector('.expect').innerText) {
+								testRow.classList.add('fail');
+							}
+						}
+					});
 				});
-			});
-		}, Promise.resolve())
-		.catch(e => console.log(e));
+			}, Promise.resolve())
+			.catch(e => console.log(e));
+		}
+
+		// Allow preloads to finish before starting tests
+		window.onload = setTimeout(run, 3000);
+		window.onhashchange = () => location.reload();
 	</script>
 	</body>
 </html>
