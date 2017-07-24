@@ -148,9 +148,9 @@
 			<tr class='test'>
 				<td class='url'>/cookie2?v=Cookie</td>
 				<td class='headers'></td>
-				<td class='expect'>MISS</td>
+				<td class='expect'></td>
 				<td class='actual'></td>
-				<td class='note'>New URL, also varying by cookie => MISS</td>
+				<td class='note'>Seed new URL, also varying by cookie</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/cookie2?v=Cookie</td>
@@ -190,49 +190,49 @@
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
-				<td class='url'>/preload?ct=image/gif</td>
+				<td class='url'>/preload?ct=image%2Fgif</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Simple preloaded asset => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?ct=image/gif&amp;c=0</td>
+				<td class='url'>/preload?ct=image%2Fgif&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Preloaded asset not normally cachable in HTTP cache => HIT<br/>MISS: Browser does not have a preload cache?</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?ct=image/gif&amp;v=Accept-Encoding</td>
+				<td class='url'>/preload?ct=image%2Fgif&amp;v=Accept-Encoding</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Preloaded asset with a vary => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?ct=image/gif&amp;v=Accept-Encoding&amp;c=0</td>
+				<td class='url'>/preload?ct=image%2Fgif&amp;v=Accept-Encoding&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Preloaded asset with vary not normally cachable in HTTP cache => HIT<br/>MISS: Browser does not have a preload cache?</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?ct=image/gif&amp;v=Accept</td>
+				<td class='url'>/preload?ct=image%2Fgif&amp;v=Accept</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Varying on <code>Accept</code> is risky because the <code>as=image</code> attribute on the preload directive prompts the browser to change the Accept value.  It will only match requests whose initiator also prompts the same Accept value (in this case, an image tag).</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?ct=image/gif&amp;v=Foo-Header</td>
+				<td class='url'>/preload?ct=image%2Fgif&amp;v=Foo-Header</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'><code>Foo-Header</code> not sent in the preload request nor in the test request => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?ct=image/gif&amp;v=Accept%2C%20Accept-Encoding</td>
+				<td class='url'>/preload?ct=image%2Fgif&amp;v=Accept%2C%20Accept-Encoding</td>
 				<td class='headers'></td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
@@ -248,28 +248,28 @@
 				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
-				<td class='url'>/push?ct=image%2fgif</td>
+				<td class='url'>/push?ct=image%2Fgif</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Simple push => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/push?ct=image%2fgif&amp;c=0</td>
+				<td class='url'>/push?ct=image%2Fgif&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>... even if it cannot be cached in the HTTP cache (because it should be in the separate preload cache)</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/push?ct=image%2fgif&amp;v=Accept-Encoding&amp;c=0</td>
+				<td class='url'>/push?ct=image%2Fgif&amp;v=Accept-Encoding&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>If the server pushes an object that has a Vary header on the response, it should still be a hit</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/push?ct=image%2fgif&amp;v=Foo-Header&amp;c=0</td>
+				<td class='url'>/push?ct=image%2Fgif&amp;v=Foo-Header&amp;c=0</td>
 				<td class='headers'>Foo-Header: 42</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
@@ -440,8 +440,8 @@
 		<li>[Chrome] Fetch API does not use the preload cache (https://bugs.chromium.org/p/chromium/issues/detail?id=652228)</li>
 		<li>[Chrome, FF] HTTP/2 push cache ignores vary when matching pushed assets (https://bugs.chromium.org/p/chromium/issues/detail?id=554220, https://bugzilla.mozilla.org/show_bug.cgi?id=1368664)</li>
 		<li>[Safari] Sometimes uses H2 Push cache, sometimes doesn't.  When it does use it, it ignores Vary (inconsistent with Jake's test)</li>
-		<li>[Edge] Does not appear to support H2 Push</li>
-		<li>[Edge] Cookies prevent cache matches???</li>
+		<li>[Edge] Does not appear to support H2 Push when using fetch, but behaves as expected with image tag</li>
+		<li>[Edge] Cookies prevent cache matches (but only when using fetch)???</li>
 	</ul>
 
 	</div>
