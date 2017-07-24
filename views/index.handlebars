@@ -234,9 +234,9 @@
 			<tr class='test'>
 				<td class='url'>/preload?ct=image%2Fgif&amp;v=Accept%2C%20Accept-Encoding</td>
 				<td class='headers'></td>
-				<td class='expect'>MISS</td>
+				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>Multiple headers, includes <code>Accept</code> => MISS</td>
+				<td class='note'>Multiple headers, including <code>Accept</code>, works if initiator matches <code>as</code> param.</td>
 			</tr>
 		</table>
 	</section>
