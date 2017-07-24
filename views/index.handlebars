@@ -491,11 +491,10 @@
 				return out.then(() => {
 					let fetchPromise;
 					const pathfrag = testRow.querySelector('.url').innerText;
-					const url = new URL(
-						location.protocol + '//' +
+					const url = location.protocol + '//' +
 						location.host +
 						(pathfrag.startsWith('/util/') ? pathfrag : '/test/'+testid+pathfrag)
-					);
+					;
 					const headers = testRow
 						.querySelector('.headers')
 						.innerText
@@ -510,10 +509,10 @@
 					const startTime = performance.now();
 
 					if (Object.keys(headers).length) {
-						console.log('Using fetch for', url.pathname, url.searchParams.toString());
+						console.log('Using fetch for', url);
 						fetchPromise = fetch(url, {headers: headers, credentials: "same-origin"}).then(resp => resp.text())
 					} else {
-						console.log('Using image for', url.pathname, url.searchParams.toString());
+						console.log('Using image for', url);
 						fetchPromise = new Promise(resolve => {
 							const imgEl = document.createElement('img');
 							imgEl.onload = imgEl.onerror = () => {
@@ -521,7 +520,7 @@
 								resolve();
 							};
 							const imgStartTime = performance.now();
-							imgEl.src = url.toString();
+							imgEl.src = url;
 							document.body.appendChild(imgEl);
 						});
 					}
