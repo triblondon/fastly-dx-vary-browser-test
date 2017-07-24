@@ -48,7 +48,7 @@
 
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
 				<td class='url'>/format?v=Accept</td>
@@ -85,7 +85,7 @@
 		<h2>Accept-Language</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
 				<td class='url'>/lang?v=Accept-Language</td>
@@ -122,7 +122,7 @@
 		<h2>Cookie</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
 				<td class='url'>/util/set-cookie?name=cacheVer&amp;val=1</td>
@@ -187,52 +187,52 @@
 		<h2>Link rel=Preload</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
-				<td class='url'>/preload</td>
+				<td class='url'>/preload?ct=image/gif</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Simple preloaded asset => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?c=0</td>
+				<td class='url'>/preload?ct=image/gif&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Preloaded asset not normally cachable in HTTP cache => HIT<br/>MISS: Browser does not have a preload cache?</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?v=Accept-Encoding</td>
+				<td class='url'>/preload?ct=image/gif&amp;v=Accept-Encoding</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Preloaded asset with a vary => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?v=Accept-Encoding&amp;c=0</td>
+				<td class='url'>/preload?ct=image/gif&amp;v=Accept-Encoding&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Preloaded asset with vary not normally cachable in HTTP cache => HIT<br/>MISS: Browser does not have a preload cache?</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?v=Accept</td>
+				<td class='url'>/preload?ct=image/gif&amp;v=Accept</td>
 				<td class='headers'></td>
-				<td class='expect'>MISS</td>
+				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>Varying on <code>Accept</code> causes mismatch because preload is sensitive to type (see <code>as=style</code> attribute => MISS</td>
+				<td class='note'>Varying on <code>Accept</code> is risky because the <code>as=image</code> attribute on the preload directive prompts the browser to change the Accept value.  It will only match requests whose initiator also prompts the same Accept value (in this case, an image tag).</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?v=Foo-Header</td>
+				<td class='url'>/preload?ct=image/gif&amp;v=Foo-Header</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'><code>Foo-Header</code> not sent in the preload request nor in the test request => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/preload?v=Accept%2C%20Accept-Encoding</td>
+				<td class='url'>/preload?ct=image/gif&amp;v=Accept%2C%20Accept-Encoding</td>
 				<td class='headers'></td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
@@ -245,31 +245,31 @@
 		<h2>HTTP/2 Push</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
-				<td class='url'>/push</td>
+				<td class='url'>/push?ct=image%2fgif</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>Simple push => HIT</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/push?c=0</td>
+				<td class='url'>/push?ct=image%2fgif&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>... even if it cannot be cached in the HTTP cache (because it should be in the separate preload cache)</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/push?v=Accept-Encoding&amp;c=0</td>
+				<td class='url'>/push?ct=image%2fgif&amp;v=Accept-Encoding&amp;c=0</td>
 				<td class='headers'></td>
 				<td class='expect'>HIT</td>
 				<td class='actual'></td>
 				<td class='note'>If the server pushes an object that has a Vary header on the response, it should still be a hit</td>
 			</tr>
 			<tr class='test'>
-				<td class='url'>/push?v=Foo-Header&amp;c=0</td>
+				<td class='url'>/push?ct=image%2fgif&amp;v=Foo-Header&amp;c=0</td>
 				<td class='headers'>Foo-Header: 42</td>
 				<td class='expect'>MISS</td>
 				<td class='actual'></td>
@@ -282,7 +282,7 @@
 		<h2>Serviceworker-added headers</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
 				<td class='url'>/sw-header?v=SW-Added-Header</td>
@@ -319,7 +319,7 @@
 		<h2>Serviceworker cache</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
 				<td class='url'>/util/sw-clear-cache</td>
@@ -377,7 +377,7 @@
 		<h2>304 Not Modified (with matching validator)</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
 				<td class='url'>/304-special?matching</td>
@@ -407,7 +407,7 @@
 		<h2>304 Not Modified (with non-matching validator)</h2>
 		<table class='fui-table'>
 			<thead>
-				<tr><th>Request URL</th><th>Headers</th><th>Expected cache result</th><th>Actual result</th><th>Notes</th></tr>
+				<tr><th>Request URL</th><th>Headers</th><th>Expect</th><th>Actual</th><th>Notes</th></tr>
 			</thead>
 			<tr class='test'>
 				<td class='url'>/304-special?non-matching</td>
@@ -436,8 +436,12 @@
 	<h2>Conclusions</h2>
 
 	<ul>
-		<li>FF Serviceworker cache behaviour differs to Chrome, which is right?</li>
-		<li>Chrome does not cache preloaded assets if they have no-store.  Bug?</li>
+		<li>[FF] Serviceworker cache behaves like intermediate cache</li>
+		<li>[Chrome] Fetch API does not use the preload cache (https://bugs.chromium.org/p/chromium/issues/detail?id=652228)</li>
+		<li>[Chrome, FF] HTTP/2 push cache ignores vary when matching pushed assets (https://bugs.chromium.org/p/chromium/issues/detail?id=554220, https://bugzilla.mozilla.org/show_bug.cgi?id=1368664)</li>
+		<li>[Safari] Sometimes uses H2 Push cache, sometimes doesn't.  When it does use it, it ignores Vary (inconsistent with Jake's test)</li>
+		<li>[Edge] Does not appear to support H2 Push</li>
+		<li>[Edge] Cookies prevent cache matches???</li>
 	</ul>
 
 	</div>
@@ -478,6 +482,7 @@
 
 		const testRun = Array.from(document.querySelectorAll('.test')).reduce((out, testRow) => {
 			return out.then(() => {
+				let fetchPromise;
 				const pathfrag = testRow.querySelector('.url').innerText;
 				const url = new URL(
 					location.protocol + '//' +
@@ -494,23 +499,38 @@
 						return heads;
 					}, {})
 				;
+				const expect = testRow.querySelector('.expect').innerText;
 				const startTime = performance.now();
-				return fetch(url, {headers: headers, credentials: "same-origin"})
-					.then(resp => resp.text())
-					.then(data => {
-						const endTime = performance.now();
-						const expect = testRow.querySelector('.expect').innerText;
 
-						if (expect) {
-							const elapsed = endTime - startTime;
-							const actual = (elapsed > DELAY_MISS) ? 'MISS' : (elapsed > DELAY_304) ? '304' : 'HIT';
-							testRow.querySelector('.actual').innerHTML = actual;
-							if (actual !== testRow.querySelector('.expect').innerText) {
-								testRow.classList.add('fail');
-							}
+				if (Object.keys(headers).length) {
+					console.log('Using fetch for', url.pathname, url.searchParams.toString());
+					fetchPromise = fetch(url, {headers: headers, credentials: "same-origin"}).then(resp => resp.text())
+				} else {
+					console.log('Using image for', url.pathname, url.searchParams.toString());
+					fetchPromise = new Promise(resolve => {
+						const imgEl = document.createElement('img');
+						imgEl.onload = imgEl.onerror = () => {
+							document.body.removeChild(imgEl);
+							resolve();
+						};
+						const imgStartTime = performance.now();
+						imgEl.src = url.toString();
+						document.body.appendChild(imgEl);
+					});
+				}
+
+				return fetchPromise.then(() => {
+					const endTime = performance.now();
+
+					if (expect) {
+						const elapsed = endTime - startTime;
+						const actual = (elapsed > DELAY_MISS) ? 'MISS' : (elapsed > DELAY_304) ? '304' : 'HIT';
+						testRow.querySelector('.actual').innerHTML = actual;
+						if (actual !== testRow.querySelector('.expect').innerText) {
+							testRow.classList.add('fail');
 						}
-					})
-				;
+					}
+				});
 			});
 		}, Promise.resolve())
 		.catch(e => console.log(e));

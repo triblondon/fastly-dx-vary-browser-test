@@ -34,17 +34,17 @@ app.use(express.static('public', { etag:false, lastModified:false }));
 app.get('/', (req, res) => {
 	const testid = Date.now() + Math.round(Math.random()*10000000);
 	res.set('Fastly-Test-ID', testid);
-	res.set('Link', '</test/'+testid+'/preload>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/preload?c=0>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/preload?v=Accept-Encoding>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/preload?v=Accept-Encoding&c=0>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/preload?v=Accept>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/preload?v=Foo-Header>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/preload?v=Accept%2C%20Accept-Encoding>; rel=preload; as=style; nopush, ' +
-		'</test/'+testid+'/push>; rel=preload; x-http2-push-only, ' +
-		'</test/'+testid+'/push?c=0>; rel=preload; x-http2-push-only, ' +
-		'</test/'+testid+'/push?v=Accept-Encoding&c=0>; rel=preload; x-http2-push-only, ' +
-		'</test/'+testid+'/push?v=Foo-Header&c=0>; rel=preload; x-http2-push-only'
+	res.set('Link', '</test/'+testid+'/preload?ct=image%2Fgif>; rel=preload; as=image; nopush, ' +
+		'</test/'+testid+'/preload?ct=image%2Fgif&c=0>; rel=preload; as=image; nopush, ' +
+		'</test/'+testid+'/preload?ct=image%2Fgif&v=Accept-Encoding>; rel=preload; as=image; nopush, ' +
+		'</test/'+testid+'/preload?ct=image%2Fgif&v=Accept-Encoding&c=0>; rel=preload; as=image; nopush, ' +
+		'</test/'+testid+'/preload?ct=image%2Fgif&v=Accept>; rel=preload; as=image; nopush, ' +
+		'</test/'+testid+'/preload?ct=image%2Fgif&v=Foo-Header>; rel=preload; as=image; nopush, ' +
+		'</test/'+testid+'/preload?ct=image%2Fgif&v=Accept%2C%20Accept-Encoding>; rel=preload; as=image; nopush, ' +
+		'</test/'+testid+'/push?ct=image%2Fgif>; rel=preload; x-http2-push-only, ' +
+		'</test/'+testid+'/push?ct=image%2Fgif&c=0>; rel=preload; x-http2-push-only, ' +
+		'</test/'+testid+'/push?ct=image%2Fgif&v=Accept-Encoding&c=0>; rel=preload; x-http2-push-only, ' +
+		'</test/'+testid+'/push?ct=image%2Fgif&v=Foo-Header&c=0>; rel=preload; x-http2-push-only'
 	);
 	// Tell the browser that we support H2
 	res.cookie('h2', 1, { maxAge: 5000, path: '/' });
@@ -81,8 +81,13 @@ app.get("/test/:id/:name", (req, res) => {
 		if ('c' in req.query && req.query.c === '0') {
 			res.set('Cache-Control', 'private, no-store');
 		}
-		res.set('Content-type', 'text/plain');
-		res.end(req.params.name + ' ' + req.params.id + ' ' + Date.now());
+		const ct = ('ct' in req.query) ? req.query.ct : 'text/plain'
+		res.set('Content-type', ct);
+		if (decodeURIComponent(ct) == 'image/gif') {
+			res.end('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg==');
+		} else {
+			res.end(req.params.name + ' ' + req.params.id + ' ' + Date.now());
+		}
 	}, DELAY_TIME);
 });
 
