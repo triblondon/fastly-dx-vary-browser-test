@@ -377,19 +377,19 @@
 			<tr class='test'>
 				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
 				<td class='headers'>Foo-Header: 1</td>
-				<td class='expect'>MISS</td>
+				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>Back to the first variation.  If serviceworker cache matches the behaviour of the HTTP cache, this should now be a miss.<br/>
-					<div class='bug'>FF (54): Serviceworker cache behaves like intermediate cache</div>
+				<td class='note'>Back to the first variation.  <a href='https://w3c.github.io/ServiceWorker/#query-cache-algorithm'>As specified</a>, serviceworker should implement vary like an intermediate cache, not a validator<br/>
+					<div class='bug'>Chrome (60): Serviceworker cache stores only one variation</div>
 				</td>
 			</tr>
 			<tr class='test'>
 				<td class='url'>/sw-cache?v=Foo-Header&amp;c=0</td>
 				<td class='headers'>Foo-Header: 2</td>
-				<td class='expect'>MISS</td>
+				<td class='expect'>HIT</td>
 				<td class='actual'></td>
-				<td class='note'>Repeat the second variation again, expect a MISS<br/>
-					<div class='bug'>FF (54): Serviceworker cache behaves like intermediate cache</div>
+				<td class='note'>Repeat the second variation again, expect a HIT, if cache is storing multiple variations<br/>
+					<div class='bug'>Chrome (60): Serviceworker cache stores only one variation</div>
 				</td>
 			</tr>
 		</table>
