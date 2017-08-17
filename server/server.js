@@ -79,7 +79,7 @@ app.get("/test/:id/:name", (req, res) => {
 			res.set('Vary', req.query.v);
 		}
 		if ('c' in req.query && req.query.c === '0') {
-			res.set('Cache-Control', 'private, no-store');
+			res.set('Cache-Control', 'private, no-cache');
 		}
 		const ct = ('ct' in req.query) ? req.query.ct : 'text/plain'
 		res.set('Content-type', ct);
